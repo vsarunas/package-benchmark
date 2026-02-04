@@ -9,14 +9,83 @@
 //
 
 #include <stdio.h>
+#include <sys/ioctl.h>
 #include "CLinuxOperatingSystemStats.h"
+#ifdef __GLIBC__
 #include <linux/perf_event.h>    /* Definition of PERF_* constants */
 #include <linux/hw_breakpoint.h> /* Definition of HW_* constants */
+#else
+// Minimal perf_event definitions for musl builds
+#define PERF_TYPE_HARDWARE 0
+#define PERF_COUNT_HW_INSTRUCTIONS 1
+#define PERF_EVENT_IOC_ENABLE  _IO('$', 0)
+#define PERF_EVENT_IOC_DISABLE _IO('$', 1)
+#define PERF_EVENT_IOC_RESET   _IO('$', 3)
+
+struct perf_event_attr {
+    unsigned int type;
+    unsigned int size;
+    unsigned long long config;
+    union {
+        unsigned long long sample_period;
+        unsigned long long sample_freq;
+    };
+    unsigned long long sample_type;
+    unsigned long long read_format;
+    unsigned long long flags;
+    // Bit fields as flags
+    #define PE_DISABLED       (1ULL << 0)
+    #define PE_INHERIT        (1ULL << 1)
+    #define PE_PINNED         (1ULL << 2)
+    #define PE_EXCLUSIVE      (1ULL << 3)
+    #define PE_EXCLUDE_USER   (1ULL << 4)
+    #define PE_EXCLUDE_KERNEL (1ULL << 5)
+    #define PE_EXCLUDE_HV     (1ULL << 6)
+    #define PE_EXCLUDE_IDLE   (1ULL << 7)
+    unsigned int disabled:1;
+    unsigned int inherit:1;
+    unsigned int pinned:1;
+    unsigned int exclusive:1;
+    unsigned int exclude_user:1;
+    unsigned int exclude_kernel:1;
+    unsigned int exclude_hv:1;
+    unsigned int exclude_idle:1;
+    unsigned int mmap:1;
+    unsigned int comm:1;
+    unsigned int freq:1;
+    unsigned int inherit_stat:1;
+    unsigned int enable_on_exec:1;
+    unsigned int task:1;
+    unsigned int watermark:1;
+    unsigned int precise_ip:2;
+    unsigned int mmap_data:1;
+    unsigned int sample_id_all:1;
+    unsigned int exclude_host:1;
+    unsigned int exclude_guest:1;
+    unsigned int exclude_callchain_kernel:1;
+    unsigned int exclude_callchain_user:1;
+    unsigned int mmap2:1;
+    unsigned int comm_exec:1;
+    unsigned int use_clockid:1;
+    unsigned int context_switch:1;
+    unsigned int write_backward:1;
+    unsigned int namespaces:1;
+    unsigned int ksymbol:1;
+    unsigned int bpf_event:1;
+    unsigned int aux_output:1;
+    unsigned int cgroup:1;
+    unsigned int text_poke:1;
+    unsigned int build_id:1;
+    unsigned int inherit_thread:1;
+    unsigned int remove_on_exec:1;
+    unsigned int sigtrap:1;
+    unsigned int __reserved_1:26;
+};
+#endif
 #include <stdlib.h>
 #include <sys/syscall.h>         /* Definition of SYS_* constants */
 #include <unistd.h>
 #include <string.h> // memset
-#include <sys/ioctl.h>
 #include <errno.h>
 
 static void CLinuxPerformanceCountersInit();
