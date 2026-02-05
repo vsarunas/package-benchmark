@@ -43,6 +43,7 @@ jobs:
         MUSL_LINUX=$(find /tmp/swiftsdks -path "*/x86_64/usr/include/linux" -type d | head -1)
         cp /usr/include/linux/perf_event.h "$MUSL_LINUX/"
         cp /usr/include/linux/hw_breakpoint.h "$MUSL_LINUX/"
+        cp /usr/include/linux/types.h "$MUSL_LINUX/"
 
     - name: Build with static musl SDK
       env:
