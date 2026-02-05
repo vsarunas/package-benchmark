@@ -40,10 +40,15 @@ jobs:
 
     - name: Add missing Linux kernel headers to musl SDK
       run: |
-        MUSL_LINUX=$(find /tmp/swiftsdks -path "*/x86_64/usr/include/linux" -type d | head -1)
-        cp /usr/include/linux/perf_event.h "$MUSL_LINUX/"
-        cp /usr/include/linux/hw_breakpoint.h "$MUSL_LINUX/"
-        cp /usr/include/linux/types.h "$MUSL_LINUX/"
+        MUSL_INCLUDE=$(find /tmp/swiftsdks -path "*/x86_64/usr/include" -type d | grep musl | head -1)
+        # Copy missing linux/ headers (folder already exists with some headers)
+        cp /usr/include/linux/perf_event.h "$MUSL_INCLUDE/linux/"
+        cp /usr/include/linux/hw_breakpoint.h "$MUSL_INCLUDE/linux/"
+        cp /usr/include/linux/types.h "$MUSL_INCLUDE/linux/"
+        cp /usr/include/linux/ioctl.h "$MUSL_INCLUDE/linux/"
+        # Symlink asm and asm-generic folders
+        ln -s /usr/include/x86_64-linux-gnu/asm "$MUSL_INCLUDE/asm"
+        ln -s /usr/include/asm-generic "$MUSL_INCLUDE/asm-generic"
 
     - name: Build with static musl SDK
       env:
