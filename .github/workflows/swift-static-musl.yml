@@ -19,7 +19,7 @@ jobs:
     - name: Install prerequisites
       run: |
         apt-get update -q
-        apt-get install -y -q curl jq tar git linux-libc-dev
+        apt-get install -y -q curl jq tar git libjemalloc-dev
 
     - name: Install Swift prerequisites
       run: |
