@@ -41,13 +41,11 @@ jobs:
     - name: Add missing Linux kernel headers to musl SDK
       run: |
         MUSL_INCLUDE=$(find /tmp/swiftsdks -path "*/x86_64/usr/include" -type d | grep musl | head -1)
-        # Copy missing linux/ headers (folder already exists with some headers)
-        cp /usr/include/linux/perf_event.h "$MUSL_INCLUDE/linux/"
-        cp /usr/include/linux/hw_breakpoint.h "$MUSL_INCLUDE/linux/"
-        cp /usr/include/linux/types.h "$MUSL_INCLUDE/linux/"
-        cp /usr/include/linux/ioctl.h "$MUSL_INCLUDE/linux/"
-        cp /usr/include/linux/posix_types.h "$MUSL_INCLUDE/linux/"
-        cp /usr/include/linux/stddef.h "$MUSL_INCLUDE/linux/"
+        # Backup original musl linux headers, replace with system headers, restore musl originals
+        cp -r "$MUSL_INCLUDE/linux" /tmp/linux-musl-backup
+        rm -rf "$MUSL_INCLUDE/linux"
+        cp -r /usr/include/linux "$MUSL_INCLUDE/linux"
+        cp /tmp/linux-musl-backup/* "$MUSL_INCLUDE/linux/"
         # Symlink asm and asm-generic folders
         ln -s /usr/include/x86_64-linux-gnu/asm "$MUSL_INCLUDE/asm"
         ln -s /usr/include/asm-generic "$MUSL_INCLUDE/asm-generic"
