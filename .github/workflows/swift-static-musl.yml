@@ -46,6 +46,8 @@ jobs:
         cp /usr/include/linux/hw_breakpoint.h "$MUSL_INCLUDE/linux/"
         cp /usr/include/linux/types.h "$MUSL_INCLUDE/linux/"
         cp /usr/include/linux/ioctl.h "$MUSL_INCLUDE/linux/"
+        cp /usr/include/linux/posix_types.h "$MUSL_INCLUDE/linux/"
+        cp /usr/include/linux/stddef.h "$MUSL_INCLUDE/linux/"
         # Symlink asm and asm-generic folders
         ln -s /usr/include/x86_64-linux-gnu/asm "$MUSL_INCLUDE/asm"
         ln -s /usr/include/asm-generic "$MUSL_INCLUDE/asm-generic"
